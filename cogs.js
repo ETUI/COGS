@@ -411,8 +411,8 @@
                     return getter.apply(this);
                 }
                 else{
-                    if !(setter){
-                        throw "Setting readonly property".
+                    if (!setter){
+                        throw "Setting readonly property";
                     }
                     return setter.apply(this, arguments);
                 }
