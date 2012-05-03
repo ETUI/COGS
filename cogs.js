@@ -30,7 +30,7 @@
 
     "use strict";
 
-    var cogs = {};
+    var cogs = {}, ver = '0.1';
 
     /**
      * @function ctor
@@ -422,6 +422,8 @@
             return ret;
         };
     }();
+
+    cogs.ver = ver;
 
     return cogs;
 
