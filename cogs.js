@@ -289,7 +289,7 @@
         cogs.observable = observableCtor;
 
         function onFunc(eventName, callback){
-            var name = eventName.chatAt(0).toUpperCase() + eventName.substr(1),
+            var name = eventName.charAt(0).toUpperCase() + eventName.substr(1),
                 evt = this['on' + name];
 
             if (!evt){
@@ -305,7 +305,7 @@
         }
 
         function offFunc(){
-            var name = eventName.chatAt(0).toUpperCase() + eventName.substr(1),
+            var name = eventName.charAt(0).toUpperCase() + eventName.substr(1),
                 evt = this['on' + name];
 
             if (!evt){
@@ -320,6 +320,17 @@
             }
         }
 
+        function emitFunc(eventName){
+            var name = eventName.charAt(0).toUpperCase() + eventName.substr(1),
+                evt = this['on' + name], args = Array.prototype.slice.call(arguments);
+
+            args.shift();
+
+            if (evt){
+                evt.apply(this, args);
+            }
+        };
+
         /**
          * @function emittable
          * add .on and .off to support any object
@@ -327,6 +338,7 @@
         cogs.emittable = function(obj){
             obj['on'] = onFunc;
             obj['off'] = offFunc;
+            obj['emit'] = emitFunc;
         };
     }();
 
