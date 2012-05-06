@@ -148,16 +148,19 @@
      * @function: observable
      **/
     !function(){
+
+        function Box(){
+            this.ref = null;
+            this.next = null;
+        }
+
         /**
          * @function newBox
          * @private
          * Create a node
          **/
         function newBox() {
-            return new function() {
-                this.ref = null;
-                this.next = null;
-            };
+            return new Box;
         };
 
         function checkIsFunc(func){
@@ -287,59 +290,6 @@
         };
 
         cogs.observable = observableCtor;
-
-        function onFunc(eventName, callback){
-            var name = eventName.charAt(0).toUpperCase() + eventName.substr(1),
-                evt = this['on' + name];
-
-            if (!evt){
-                this['on' + name] = cogs.event();
-            }
-
-            if (evt.hook === hookFunc){
-                evt.hook(callback);
-            }
-            else{
-                throw "The member name '" + eventName + "' is occupied.";
-            }
-        }
-
-        function offFunc(){
-            var name = eventName.charAt(0).toUpperCase() + eventName.substr(1),
-                evt = this['on' + name];
-
-            if (!evt){
-                return;
-            }
-
-            if (evt.unhook === unhookFunc){
-                evt.unhook(callback);
-            }
-            else{
-                throw "The member name '" + eventName + "' might be over written.";
-            }
-        }
-
-        function emitFunc(eventName){
-            var name = eventName.charAt(0).toUpperCase() + eventName.substr(1),
-                evt = this['on' + name], args = Array.prototype.slice.call(arguments);
-
-            args.shift();
-
-            if (evt){
-                evt.apply(this, args);
-            }
-        };
-
-        /**
-         * @function emittable
-         * add .on and .off to support any object
-         */ 
-        cogs.emittable = function(obj){
-            obj['on'] = onFunc;
-            obj['off'] = offFunc;
-            obj['emit'] = emitFunc;
-        };
     }();
 
     /**
@@ -387,6 +337,61 @@
 
         return ret;
     };
+
+    !function(){
+        function onFunc(eventName, callback){
+            var name = eventName.charAt(0).toUpperCase() + eventName.substr(1),
+                evt = this['on' + name];
+
+            if (!evt){
+                this['on' + name] = cogs.event();
+            }
+
+            if (evt.hook){
+                evt.hook(callback);
+            }
+            else{
+                throw "The member name '" + eventName + "' is occupied.";
+            }
+        }
+
+        function offFunc(){
+            var name = eventName.charAt(0).toUpperCase() + eventName.substr(1),
+                evt = this['on' + name];
+
+            if (!evt){
+                return;
+            }
+
+            if (evt.unhook){
+                evt.unhook(callback);
+            }
+            else{
+                throw "The member name '" + eventName + "' might be over written.";
+            }
+        }
+
+        function emitFunc(eventName){
+            var name = eventName.charAt(0).toUpperCase() + eventName.substr(1),
+                evt = this['on' + name], args = Array.prototype.slice.call(arguments);
+
+            args.shift();
+
+            if (evt){
+                evt.apply(this, args);
+            }
+        };
+
+        /**
+         * @function emittable
+         * add .on and .off to support any object
+         */ 
+        cogs.emittable = function(obj){
+            obj['on'] = onFunc;
+            obj['off'] = offFunc;
+            obj['emit'] = emitFunc;
+        };
+    }();
 
     /**
      * @function prop
