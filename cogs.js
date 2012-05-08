@@ -344,7 +344,8 @@
                 evt = this['on' + name];
 
             if (!evt){
-                this['on' + name] = cogs.event();
+                evt = cogs.event();
+                this['on' + name] = evt;
             }
 
             if (evt.hook){
