@@ -62,12 +62,14 @@
             cogs.noop = function(){};
         }
 
-        cogs.ctor = function(ctor, base, preProcessor) {
+        var ctorCreator = function(ctor, base) {
 
             // internal construction argument holder
-            var argsHolder;
+            var argsHolder, key;
 
             var hasBase = base != null;
+
+            // CONSTRUCTOR WRAPPER INSTANTIATION
 
             // the function which will be returned as an constructor wrapper
             var ret = function() {
@@ -87,11 +89,6 @@
                 }
 
                 if (hasBase) {
-                    // let processor process the arguments
-                    if (preProcessor && preProcessor.call){
-                        preProcessor.call(this, args);
-                    }
-
                     // calls into base ctor before call into current ctor
                     base.apply(this, args);
                 }
@@ -99,6 +96,8 @@
                 // calls into current ctor with all arguments
                 ctor.apply(this, args);
             };
+
+            // INHERITANT CHAIN SETUP
 
             // create a obj to holds info
             var coreInfo = {};
@@ -121,6 +120,8 @@
             coreInfo.ctor= ctor;
             coreInfo.wrapper = ret;
 
+            // PROTOTYPE SETUP
+
             if (hasBase) {
                 // create an empty constructor so ret can safely have
                 // all members of base.prototype
@@ -133,11 +134,42 @@
                 ret.base = base.prototype;
 
             }
+
+            // copy over members from ctor.prototype to the new constructor wrapper
+            for(var key in ctor.prototype){
+
+                if (key === 'constructor' || !ctor.prototype.hasOwnProperty(key)){
+                    continue;
+                }
+
+                ret.prototype[key] = ctor.prototype[key];
+            }
             
             ret.prototype.__core__ = coreInfo;
 
             // repoint it in case the prototype is been overrided.
             ret.prototype.constructor = ret;
+
+            return ret;
+        };
+
+        cogs.ctor = function(){
+            var l = arguments.length, ret;
+
+            if (l <= 0){
+                return;
+            }
+
+            if (l === 1){
+                return ctorCreator(arguments[l - 1]);
+            }
+
+            l--;
+            ret = arguments[l];
+
+            while(l--){
+                ret = ctorCreator(arguments[l], ret);
+            }
 
             return ret;
         };
