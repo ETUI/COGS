@@ -9,7 +9,7 @@
     if (this.require && this.define && this.define.amd){
         // * AMD loader such as requirejs or curl: 
         // `require('path/to/cogs', callback);`
-        define(name, function(){
+        define(function(){
             return cogs;
         });
     }
@@ -138,7 +138,7 @@
             // copy over members from ctor.prototype to the new constructor wrapper
             for(var key in ctor.prototype){
 
-                if (key === 'constructor' || !ctor.prototype.hasOwnProperty(key)){
+                if (key === 'constructor'){
                     continue;
                 }
 
