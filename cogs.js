@@ -30,7 +30,7 @@
 
     "use strict";
 
-    var cogs = {}, ver = '0.1';
+    var cogs = {}, ver = '0.1', global = this;
 
     /**
      * @function ctor
@@ -75,7 +75,7 @@
             var ret = function() {
                 var instance, argsHolder, args;
 
-                if (!(this instanceof ret)){
+                if (this == global || this == undef){
                     argsHolder = Array.prototype.slice.call(arguments);
                     instance = new ret();
                     argsHolder = null;
