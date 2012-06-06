@@ -116,8 +116,8 @@ describe('cogs', function(){
             'call into the latter argument and then call the former', 
             function(){
 
+            /* TODO */
             
-
         });
 
         it('should call every constructor only once when doing multiple inheritance', 
@@ -148,6 +148,10 @@ describe('cogs', function(){
                 expect(base1Spy).called.once;
                 expect(base2Spy).called.once;
         });
+
+        it('should work with another copy of cogs if there is', function(){
+            /* TODO */
+        })
 
     });
 

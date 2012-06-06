@@ -107,7 +107,9 @@
                     this[CHAIN_CALLING] = cchain = new CallingChain();
                     cchainCreator = true;
                 }
-                if (!(cchain instanceof CallingChain)){
+                // checking cchain instanceof CallingChain will cause code failure
+                // when multiple version cogs is used together
+                if (!cchain.has && !cchain.add){
                     // somebody already taken the name?
                     throw 'Pls do not occupy the member name:' + CHAIN_CALLING + 
                         ', it is reserved by cogs.ctor()'; 
