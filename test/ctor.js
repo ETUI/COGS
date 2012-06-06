@@ -120,6 +120,35 @@ describe('cogs', function(){
 
         });
 
+        it('should call every constructor only once when doing multiple inheritance', 
+            function(){
+
+                var base1Spy = chai.spy();
+
+                var base2Spy = chai.spy();
+
+                var Base1 = cogs.ctor(base1Spy);
+
+                var Base2 = cogs.ctor(base2Spy);
+
+                var Derived1 = cogs.ctor(function Derived1Ctor(){
+                    
+                }, Base1);
+
+                var Derived2 = cogs.ctor(function Derived1Ctor(){
+                    
+                }, Derived1);
+
+                var MultiDerived1 = cogs.ctor(function Derived1Ctor(){
+                    
+                }, Derived2, Base2, Base1);
+
+                var m1 = new MultiDerived1();
+
+                expect(base1Spy).called.once;
+                expect(base2Spy).called.once;
+        });
+
     });
 
 });
