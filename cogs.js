@@ -39,6 +39,31 @@
      * the constructor of base when the new constructor is get called.
     */
     !function(){
+        // for internal use
+        var noop = function(){};
+
+        var CHAIN_CALLING = '__callingChain__';
+
+        // CallingChain constructor;
+        function CallingChain(){
+            this.funcs = [];
+        }
+        // keep it POLA
+        CallingChain.prototype = {
+            has: function(func){
+                var funcs = this.funcs;
+                for(var l = funcs.length; l--;){
+                    if (funcs[l] === func){
+                        return true;
+                    }
+                }
+
+                return false;
+            },
+            add: function(func){
+                this.funcs.unshift(func);
+            }
+        };
 
         /**
          * @function noop
@@ -75,6 +100,19 @@
             var ret = function() {
                 var instance, argsHolder, args;
 
+                // setup Calling chain
+                var cchain = this[CHAIN_CALLING], cchainCreator = false;
+
+                if (!cchain){
+                    this[CHAIN_CALLING] = cchain = new CallingChain();
+                    cchainCreator = true;
+                }
+                if (!(cchain instanceof CallingChain)){
+                    // somebody already taken the name?
+                    throw 'Pls do not occupy the member name:' + CHAIN_CALLING + 
+                        ', it is reserved by cogs.ctor()'; 
+                }
+
                 if (this == global || this == undef){
                     argsHolder = Array.prototype.slice.call(arguments);
                     instance = new ret();
@@ -88,13 +126,21 @@
                     args = argsHolder;
                 }
 
-                if (hasBase) {
+                if (hasBase && !cchain.has(base)) {
                     // calls into base ctor before call into current ctor
                     base.apply(this, args);
+                    cchain.add(base);
                 }
 
-                // calls into current ctor with all arguments
-                ctor.apply(this, args);
+                if (!cchain.has(ctor)){
+                    // calls into current ctor with all arguments
+                    ctor.apply(this, args);
+                    cchain.add(ctor);
+                }
+
+                if (cchainCreator){
+                    delete this[CHAIN_CALLING];
+                }
             };
 
             // INHERITANT CHAIN SETUP
@@ -125,9 +171,8 @@
             if (hasBase) {
                 // create an empty constructor so ret can safely have
                 // all members of base.prototype
-                var temp = function(){};
-                temp.prototype = base.prototype;
-                ret.prototype = new temp();
+                noop.prototype = base.prototype;
+                ret.prototype = new noop;
 
                 // allow sub class access super prototype
                 // by accessing ctorWrapper.base.
