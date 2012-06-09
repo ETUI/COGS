@@ -399,11 +399,19 @@
         ret.onUnhook = cogs.observable();
 
         var hook = ret.hook;
+        var once = ret.once;
         ret.hook = function(func){
             if (ret.onHook(this, func) === false){
                 return false;
             }
             return hook.apply(this, arguments);
+        };
+
+        ret.once = function(func){
+            if (ret.onHook(this, func) === false){
+                return false;
+            }
+            return once.apply(this, arguments);
         };
 
         var unhook = ret.unhook;
