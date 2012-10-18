@@ -32,6 +32,18 @@
 
     var cogs = {}, ver = '0.1', global = this;
 
+    function bind(context) {
+        var slice = Array.prototype.slice;
+        var __method = this, args = slice.call(arguments);
+        args.shift();
+        return function wrapper() {
+            if (this instanceof wrapper){
+                context = this;
+            }
+            return __method.apply(context, args.concat(slice.call(arguments)));
+        };
+    }
+
     /**
      * @function ctor
      * A contructor helper, it returns a contructor which its prototype has
@@ -508,8 +520,8 @@
             if (getter == null &&
                 setter == null){
                 data = {};
-                getter = defaultGetter.bind(data);
-                setter = defaultSetter.bind(data);
+                getter = bind.call(defaultGetter, data);
+                setter = bind.call(defaultSetter, data);
             }
             ret = function(value){
                 if (value === undef){
