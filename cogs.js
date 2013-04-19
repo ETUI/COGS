@@ -30,6 +30,8 @@
 
     "use strict";
 
+    var ON = 'on';
+
     var cogs = {}, ver = '0.1', global = this;
 
     function bind(context) {
@@ -112,6 +114,13 @@
             var ret = function() {
                 var instance, argsHolder, args;
 
+                if (this == global || this == undef){
+                    argsHolder = Array.prototype.slice.call(arguments);
+                    instance = new ret();
+                    argsHolder = null;
+                    return instance;
+                }
+
                 // setup Calling chain
                 var cchain = this[CHAIN_CALLING], cchainCreator = false;
 
@@ -125,13 +134,6 @@
                     // somebody already taken the name?
                     throw 'Pls do not occupy the member name:' + CHAIN_CALLING + 
                         ', it is reserved by cogs.ctor()'; 
-                }
-
-                if (this == global || this == undef){
-                    argsHolder = Array.prototype.slice.call(arguments);
-                    instance = new ret();
-                    argsHolder = null;
-                    return instance;
                 }
 
                 args = arguments;
@@ -236,14 +238,133 @@
     }();
 
     /**
-     * @function: observable
+     * @function: stub
+     **/
+    function NOT_IMP(){
+        throw 'This method is not implemented yet.';
+    }
+
+    cogs.stub = function(obj, methods){
+        var name, l;
+        var ret = obj;
+
+        if (!obj){
+            throw 'Stub object must be specified';
+        }
+
+        if (typeof obj == 'function'){
+            obj = obj.prototype;
+        }
+
+        if (!methods || (~~methods.length == 0) ){
+            return;
+        }
+
+        for(l = methods; l--;){
+            name = methods[l];
+
+            if (name in obj){
+                continue;
+            }
+
+            obj[name] = NOT_IMP;
+        }
+
+        return ret;
+    };
+
+    /**
+     * @function: mixin
      **/
     !function(){
+        var getDescriptor = Object.getOwnPropertyDescriptor;
+        var setDescriptor = Object.defineProperty;
 
-        function Box(){
-            this.ref = null;
-            this.next = null;
+        function getAncestorDescriptor(obj, name){
+            var ret;
+
+            while(ret == null && obj != null){
+                ret = getDescriptor(obj, name);
+                obj = Object.getPrototypeOf(obj);
+            }
+
+            return ret;
         }
+
+        function setMember(target, source, name){
+            var srcDesc, tgtDesc;
+            if (getDescriptor){
+                srcDesc = getDescriptor(source, name);
+                tgtDesc = getAncestorDescriptor(target, name);
+
+                if(tgtDesc != null && (srcDesc.get || srcDesc.set)){
+                    srcDesc.get = (srcDesc.get || tgtDesc.get);
+                    srcDesc.set = (srcDesc.set || tgtDesc.set);
+                }
+
+                setDescriptor(target, name, srcDesc);
+            
+            }
+            else{
+                target[name] = source[name];
+            }
+        }
+
+        cogs.mixin = function(target){
+            var name, l, source;
+
+            if (!target){
+                return;
+            }
+
+            var ret = target;
+
+            if (typeof target == 'function'){
+                target = target.prototype;
+            }
+
+            for(l = arguments.length; l--;){
+                if (arguments[l] == null){
+                    continue;
+                }
+
+                source = arguments[l];
+
+                if (typeof source == 'function'){
+                    source = source.prototype;
+                }
+
+                for (name in source){
+                    var desc = getAncestorDescriptor(target, name);
+                    if (!source.hasOwnProperty(name) && 
+                        name in target && 
+                        (
+                            getDescriptor ? 
+                                (desc && desc.value != NOT_IMP) : 
+                                target[name] != NOT_IMP
+                        )
+                        ){
+                        continue;
+                    }
+
+                    setMember(target, source ,name);
+                }
+            }
+
+            return ret;
+
+        };
+    }();
+
+    /**
+     * @function: observable
+     **/
+    function EventLinkBox(){
+        this.ref = null;
+        this.next = null;
+    }
+
+    !function(){
 
         /**
          * @function newBox
@@ -251,7 +372,7 @@
          * Create a node
          **/
         function newBox() {
-            return new Box;
+            return new EventLinkBox;
         };
 
         function checkIsFunc(func){
@@ -281,7 +402,9 @@
             while (c.next != null) {
                 p = c;
                 c = c.next;
-                if (c.ref === func) {
+                if (c.ref === func || 
+                    // allow to remove all hooked functions when func is mot specified
+                    func == null) {
                     p.next = c.next;
 
                     // we are deleting the last element
@@ -290,7 +413,7 @@
                         this.cur = p;
                     }
 
-                    c = null;
+                    c.ref = null;
                     return true;
                 }
             }
@@ -309,8 +432,8 @@
         };
 
         function invokeFunc(){
-            var args = Array.prototype.slice.call(arguments);
-            var context = args.shift();
+            var args = Array.prototype.slice.call(arguments, 1);
+            var context = arguments[0];
             var c = this.head;
             var p = null, tmp = null, result=null;
             while (c.next != null) {
@@ -440,11 +563,11 @@
     !function(){
         function onFunc(eventName, callback){
             var name = eventName.charAt(0).toUpperCase() + eventName.substr(1),
-                evt = this['on' + name];
+                evt = this[ON + name];
 
             if (!evt){
                 evt = cogs.event();
-                this['on' + name] = evt;
+                this[ON + name] = evt;
             }
 
             if (evt.hook){
@@ -455,9 +578,26 @@
             }
         }
 
-        function offFunc(){
+        function offFunc(eventName, callback){
+            if (!eventName){
+                
+                // if there is no eventName specified, that simply means
+                // we want to clear all event on current obj
+                for(var key in this){
+                    if (key.indexOf(ON) != 0 ||
+                        // if it is not a cogs event object
+                        !(this[key].head instanceof EventLinkBox)){
+                        continue;
+                    }
+
+                    offFunc(key.substr(2));
+                }
+
+                return;
+            }
+
             var name = eventName.charAt(0).toUpperCase() + eventName.substr(1),
-                evt = this['on' + name];
+                evt = this[ON + name];
 
             if (!evt){
                 return;
@@ -472,12 +612,11 @@
         }
 
         function emitFunc(eventName){
-            var name = eventName.charAt(0).toUpperCase() + eventName.substr(1),
-                evt = this['on' + name], args = Array.prototype.slice.call(arguments);
-
-            args.shift();
+            var name = [eventName.charAt(0).toUpperCase(), eventName.substr(1)].join(''),
+                evt = this[ON + name], args;
 
             if (evt){
+                args = Array.prototype.slice.call(arguments, 1);
                 evt.apply(this, args);
             }
         };
@@ -487,10 +626,14 @@
          * add .on and .off to support any object
          */ 
         cogs.emittable = function(obj){
-            obj['on'] = onFunc;
+            obj[ON] = onFunc;
             obj['off'] = offFunc;
             obj['emit'] = emitFunc;
+
+            return obj;
         };
+
+        cogs.emittable(cogs.emittable.prototype);
     }();
 
     /**
