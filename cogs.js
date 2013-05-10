@@ -197,14 +197,7 @@
             }
 
             // copy over members from ctor.prototype to the new constructor wrapper
-            for(var key in ctor.prototype){
-
-                if (key === 'constructor'){
-                    continue;
-                }
-
-                ret.prototype[key] = ctor.prototype[key];
-            }
+            cogs.mixin(ret, ctor);
             
             ret.prototype.__core__ = coreInfo;
 
