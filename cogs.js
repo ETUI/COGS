@@ -197,7 +197,14 @@
             }
 
             // copy over members from ctor.prototype to the new constructor wrapper
-            cogs.mixin(ret, ctor);
+            for(var key in ctor.prototype){
+
+                if (key === 'constructor'){
+                    continue;
+                }
+
+                ret.prototype[key] = ctor.prototype[key];
+            }
             
             ret.prototype.__core__ = coreInfo;
 
@@ -274,11 +281,17 @@
         var setDescriptor = Object.defineProperty;
 
         function getAncestorDescriptor(obj, name){
-            var ret;
+            var ret, tmp;
 
             while(ret == null && obj != null){
                 ret = getDescriptor(obj, name);
-                obj = Object.getPrototypeOf(obj);
+                tmp = Object.getPrototypeOf(obj);
+
+                if (tmp === obj){
+                    break;
+                }
+
+                obj = tmp;
             }
 
             return ret;
