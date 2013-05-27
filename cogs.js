@@ -280,6 +280,15 @@
         var getDescriptor = Object.getOwnPropertyDescriptor;
         var setDescriptor = Object.defineProperty;
 
+        try{
+            Object.getOwnPropertyDescriptor({f:1}, 'f');
+        }
+        catch(ex){
+            // in case it is the fake getDescriptor on ie
+            getDescriptor = undef;
+            setDescriptor = undef;
+        }
+
         function getAncestorDescriptor(obj, name){
             var ret, tmp;
 
