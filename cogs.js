@@ -350,11 +350,11 @@
                 }
 
                 for (name in source){
-                    var desc = getAncestorDescriptor(target, name);
+                    var desc = getDescriptor ? getAncestorDescriptor(target, name) : null;
                     if (!source.hasOwnProperty(name) && 
                         name in target && 
                         (
-                            getDescriptor ? 
+                            desc ? 
                                 (desc && desc.value != NOT_IMP) : 
                                 target[name] != NOT_IMP
                         )
