@@ -1,0 +1,22 @@
+{
+  "name": "cogs",
+  "version": "1.0.0",
+  "main": "cogs.min.js",
+  "devDependencies": {
+    "requirejs": "~2.1.11",
+    "grunt": "~0.4.1",
+    "grunt-bumpup": "~0.2.0",
+    "grunt-contrib-requirejs": ">= 0.3.0",
+    "grunt-contrib-uglify": ">= 0",
+    "grunt-tagrelease": "~0.2.0",
+    "mocha": "~1.9.0",
+    "sinon": "~1.7.3",
+    "chai": "~1.6.0",
+    "amdefine": "~0.1.0",
+    "almond": "~0.2.9",
+    "chai-spies": "~0.5.1"
+  },
+  "scripts": {
+    "test": "make test"
+  }
+}
