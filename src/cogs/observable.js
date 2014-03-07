@@ -2,9 +2,11 @@
  * @function: observable
  **/
 
-if (typeof define !== 'function') {
+//>>excludeStart("release", pragmas.release);
+if (typeof define !== 'function' && typeof module != 'undefined') {
     var define = require('amdefine')(module);
 }
+//>>excludeEnd("release");
 
 define(['./noop'], function (noop) {
 

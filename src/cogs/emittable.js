@@ -3,9 +3,11 @@
  * add .on and .off to support any object
  */ 
 
-if (typeof define !== 'function') {
+//>>excludeStart("release", pragmas.release);
+if (typeof define !== 'function' && typeof module != 'undefined') {
     var define = require('amdefine')(module);
 }
+//>>excludeEnd("release");
 
 define(['./event'], function (event) {
 

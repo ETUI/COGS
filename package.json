@@ -1,6 +1,6 @@
 {
   "name": "cogs",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "cogs.min.js",
   "devDependencies": {
     "requirejs": "~2.1.11",

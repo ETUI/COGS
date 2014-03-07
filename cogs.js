@@ -428,7 +428,6 @@ define("../node_modules/almond/almond", function(){});
  */
 
 
-
 define('cogs/global',[],function () {
     return (new Function("return this;"))();
 });
@@ -441,7 +440,6 @@ define('cogs/noop',[],function(){
  * same member methods as the prototype of base, also calls into
  * the constructor of base when the new constructor is get called.
 */
-
 
 
 define('cogs/ctor',['./global', './noop'], function(global, noop){
@@ -612,7 +610,6 @@ define('cogs/ctor',['./global', './noop'], function(global, noop){
  **/
 
 
-
 define('cogs/stub',[],function () {
     function NOT_IMP(){
         throw 'This method is not implemented yet.';
@@ -652,7 +649,6 @@ define('cogs/stub',[],function () {
 /**
  * @function: mixin
  **/
-
 
 
 define('cogs/mixin',[],function () {
@@ -754,7 +750,6 @@ define('cogs/mixin',[],function () {
 /**
  * @function: observable
  **/
-
 
 
 define('cogs/observable',['./noop'], function (noop) {
@@ -928,7 +923,6 @@ define('cogs/observable',['./noop'], function (noop) {
  **/
 
 
-
 define('cogs/event',['./observable'], function(observable){
     var ON = 'on';
 
@@ -1037,7 +1031,6 @@ define('cogs/event',['./observable'], function(observable){
  */ 
 
 
-
 define('cogs/emittable',['./event'], function (event) {
 
     function emittable(obj){
@@ -1105,7 +1098,6 @@ define('cogs/prop',['require'],function (argument) {
 
     return prop;
 });
-
      
 define('cogs',['./cogs/ctor', './cogs/noop', './cogs/stub', './cogs/mixin', './cogs/observable', './cogs/event', './cogs/emittable', './cogs/prop'], 
     function (ctor, noop, stub, mixin, observable, event, emittable, prop) {

@@ -11,6 +11,11 @@
  * context and the return value of getter will be returned.
  *
  **/
+//>>excludeStart("release", pragmas.release);
+if (typeof define !== 'function' && typeof module != 'undefined') {
+    var define = require('amdefine')(module);
+}
+//>>excludeEnd("release");
 define(function (argument) {
 
     function defaultGetter(){

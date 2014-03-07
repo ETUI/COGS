@@ -33,6 +33,9 @@ module.exports = function(grunt) {
                             "parentDefine(function() { return require('" + SPACE_NAME + "'); }); \n" + 
                             "}());"
                     },
+                    pragmas: {
+                        release: true
+                    },
                     optimize : "none"
                 }
             }

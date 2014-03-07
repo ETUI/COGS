@@ -1,6 +1,8 @@
-if (typeof define !== 'function') {
+//>>excludeStart("release", pragmas.release);
+if (typeof define !== 'function' && typeof module != 'undefined') {
     var define = require('amdefine')(module);
 }
+//>>excludeEnd("release");
      
 define(['./cogs/ctor', './cogs/noop', './cogs/stub', './cogs/mixin', './cogs/observable', './cogs/event', './cogs/emittable', './cogs/prop'], 
     function (ctor, noop, stub, mixin, observable, event, emittable, prop) {
